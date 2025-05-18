@@ -1,4 +1,4 @@
-name: Node.js CI/CD
+name: Docker Build and Push
 
 on:
   push:
@@ -7,26 +7,60 @@ on:
     branches: [ main ]
 
 jobs:
-  build-and-test:
+  user-service:
     runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        service: [ user-service, wallet-service ]
-
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
 
-      - name: Use Node.js 18
-        uses: actions/setup-node@v3
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
         with:
-          node-version: 18
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Install dependencies for ${{ matrix.service }}
-        working-directory: ./${{ matrix.service }}
-        run: npm install
+      - name: Build user-service Docker image
+        run: |
+          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/user-service:latest ./user-service
 
-      # - name: Run tests for ${{ matrix.service }}
-      #   working-directory: ./${{ matrix.service }}
-      #   run: npm test
+      - name: Push user-service Docker image
+        run: |
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/user-service:latest
+
+      - name: Save user-service Docker image as artifact
+        run: |
+          docker save ${{ secrets.DOCKERHUB_USERNAME }}/user-service:latest -o user-service-image.tar
+      - name: Upload user-service Docker image artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: user-service-image
+          path: user-service-image.tar
+
+  wallet-service:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build wallet-service Docker image
+        run: |
+          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/wallet-service:latest ./wallet-service
+
+      - name: Push wallet-service Docker image
+        run: |
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/wallet-service:latest
+
+      - name: Save wallet-service Docker image as artifact
+        run: |
+          docker save ${{ secrets.DOCKERHUB_USERNAME }}/wallet-service:latest -o wallet-service-image.tar
+      - name: Upload wallet-service Docker image artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: wallet-service-image
+          path: wallet-service-image.tar
