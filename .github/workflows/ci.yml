@@ -31,11 +31,11 @@ jobs:
         run: |
           docker save ${{ secrets.DOCKERHUB_USERNAME }}/user-service:latest -o user-service-image.tar
       - name: Upload user-service Docker image artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v2
         with:
           name: user-service-image
           path: user-service-image.tar
-
+          
   wallet-service:
     runs-on: ubuntu-latest
     steps:
@@ -60,7 +60,7 @@ jobs:
         run: |
           docker save ${{ secrets.DOCKERHUB_USERNAME }}/wallet-service:latest -o wallet-service-image.tar
       - name: Upload wallet-service Docker image artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v2
         with:
           name: wallet-service-image
           path: wallet-service-image.tar
