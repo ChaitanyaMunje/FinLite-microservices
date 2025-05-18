@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  mongodb:
+    image: mongo
+    container_name: mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+
+  user-service:
+    image: chaitanyamunje/user-service:latest
+    container_name: user-service
+    ports:
+      - "3001:3001"
+    environment:
+      - MONGO_URL=${MONGO_URL}
+    depends_on:
+      - mongodb
+
+  wallet-service:
+    image: chaitanyamunje/wallet-service:latest
+    container_name: wallet-service
+    ports:
+      - "3002:3002"
+    environment:
+      - MONGO_URL=${MONGO_URL}
+    depends_on:
+      - mongodb
+
+volumes:
+  mongo-data:
