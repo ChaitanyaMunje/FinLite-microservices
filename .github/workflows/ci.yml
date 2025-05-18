@@ -64,3 +64,4 @@ jobs:
         with:
           name: wallet-service-image
           path: wallet-service-image.tar
+
